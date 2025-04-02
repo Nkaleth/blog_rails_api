@@ -46,4 +46,9 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 end
 
-
+group :test do
+  gem "factory_bot", "~> 6.4", ">= 6.4.6"
+  gem "shoulda-matchers", "~> 6.4"
+  gem "faker", "~> 3.5", ">= 3.5.1"
+  gem "database_cleaner", "~> 2.1"
+end
