@@ -1,7 +1,7 @@
 class HealthController < ApplicationController
   def health
     render json: {
-      api: 'Ok'
+      api: "OK"
     },
     status: :ok
   end
