@@ -1,16 +1,31 @@
 require 'rails_helper'
-require 'debug'
 
 RSpec.describe "Posts endpoints", type: :request do
   describe "GET /posts " do
-    before { get '/posts' }
-
     it "should return OK" do
+      get '/posts'
       payload = JSON.parse(response.body)
       expect(payload).to be_empty
       expect(response).to have_http_status(200)
     end
   end
+
+  describe "Search" do
+    let!(:hola_mundo) { create(:published_post, title: 'Hola Mundo') }
+    let!(:hola_rails) { create(:published_post, title: 'Hola Rails') }
+    let!(:curso_rails) { create(:published_post, title: 'Curso Rails') }
+
+    it "Should filter posts by title" do
+      get '/posts?search=Hola'
+      payload = JSON.parse(response.body)
+      expect(payload).to_not be_empty
+      expect(payload.size).to eql(2)
+      expect(payload.map { |p| p["id"] }.sort).to eq([ hola_mundo.id, hola_rails.id ].sort)
+      expect(response).to have_http_status(200)
+    end
+  end
+
+
 
   describe "with data in the DB" do
     let!(:posts) { create_list(:post, 10, published: true) }
