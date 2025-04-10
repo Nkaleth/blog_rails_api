@@ -25,8 +25,6 @@ RSpec.describe "Posts endpoints", type: :request do
     end
   end
 
-
-
   describe "with data in the DB" do
     let!(:posts) { create_list(:post, 10, published: true) }
 
