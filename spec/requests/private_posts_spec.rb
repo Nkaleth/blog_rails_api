@@ -8,8 +8,8 @@ RSpec.describe 'Posts with authentication', type: :request  do
   let(:user_post) { create(:post, :user_id, user.id) }
   let(:other_user_post) { create(:post, user_id: other_user.id, published: true) }
   let(:other_user_post_draft) { create(:post, user_id: other_user.id, published: false) }
-  let!(:auth_headers) { 'Authorization' => "Bearer #{user.auth_token}" }
-  let!(:other_auth_headers) { 'Authorization' => "Bearer #{other_user.auth_token}" }
+  let!(:auth_headers)  { { 'Authorization' => "Bearer #{user.auth_token}" } }
+  let!(:other_auth_headers) { { 'Authorization' => "Bearer #{other_user.auth_token}" } }
 
   describe "GET /posts/{id}" do
     context "with valid auth" do
@@ -18,7 +18,7 @@ RSpec.describe 'Posts with authentication', type: :request  do
           before { get "/posts/#{other_user_post.id}", headers: auth_headers }
 
           context "Payload" do
-            subject { JSON.parse(response.body) }
+            subject { payload }
             it { is_expected.to include(:id) }
           end
           context "Response" do
@@ -30,7 +30,7 @@ RSpec.describe 'Posts with authentication', type: :request  do
           before { get "/posts/#{other_user_post_draft.id}", headers: auth_headers }
 
           context "Payload" do
-            subject { JSON.parse(response.body) }
+            subject { payload }
             it { is_expected.to include(:error) }
           end
           context "Response" do
@@ -48,5 +48,11 @@ RSpec.describe 'Posts with authentication', type: :request  do
   end
 
   describe "PUT /posts" do
+  end
+
+  private
+
+  def payload
+    JSON.parse(response.body).with_indifferent_access
   end
 end
