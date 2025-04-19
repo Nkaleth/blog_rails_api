@@ -49,14 +49,27 @@ RSpec.describe 'Posts with authentication', type: :request  do
     context "with valid auth" do
       before { post "/posts", params: create_params, headers: auth_headers }
 
-          context "Payload" do
-            subject { payload }
-            it { is_expected.to include(:id, :title, :content, :published, :author) }
-          end
-          context "Response" do
-            subject { response }
-            it { is_expected.to have_http_status(:created) }
-          end
+      context "Payload" do
+        subject { payload }
+        it { is_expected.to include(:id, :title, :content, :published, :author) }
+      end
+      context "Response" do
+        subject { response }
+        it { is_expected.to have_http_status(:created) }
+      end
+    end
+
+    context "withuot authentication" do
+      before { post "/posts", params: create_params  }
+
+      context "Payload" do
+        subject { payload }
+        it { is_expected.to include(:error) }
+      end
+      context "Response" do
+        subject { response }
+        it { is_expected.to have_http_status(:unauthorized) }
+      end
     end
   end
 
