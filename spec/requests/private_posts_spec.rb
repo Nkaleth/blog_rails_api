@@ -10,6 +10,7 @@ RSpec.describe 'Posts with authentication', type: :request  do
   let(:other_user_post_draft) { create(:post, user_id: other_user.id, published: false) }
   let!(:auth_headers)  { { 'Authorization' => "Bearer #{user.auth_token}" } }
   let!(:other_auth_headers) { { 'Authorization' => "Bearer #{other_user.auth_token}" } }
+  let!(:create_params) { { "post" => { "title" => "title", "content" => "content", "published" => true } } }
 
   describe "GET /posts/{id}" do
     context "with valid auth" do
@@ -44,7 +45,19 @@ RSpec.describe 'Posts with authentication', type: :request  do
     end
   end
 
-  describe "POST /posts" do
+   describe "POST /posts" do
+    context "with valid auth" do
+      before { post "/posts", params: create_params, headers: auth_headers }
+
+          context "Payload" do
+            subject { payload }
+            it { is_expected.to include(:id, :title, :content, :published, :author) }
+          end
+          context "Response" do
+            subject { response }
+            it { is_expected.to have_http_status(:created) }
+          end
+    end
   end
 
   describe "PUT /posts" do
