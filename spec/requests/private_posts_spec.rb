@@ -5,12 +5,13 @@ require 'rails_helper'
 RSpec.describe 'Posts with authentication', type: :request  do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:user_post) { create(:post, :user_id, user.id) }
+  let(:user_post) { create(:post, user_id: user.id) }
   let(:other_user_post) { create(:post, user_id: other_user.id, published: true) }
   let(:other_user_post_draft) { create(:post, user_id: other_user.id, published: false) }
   let!(:auth_headers)  { { 'Authorization' => "Bearer #{user.auth_token}" } }
   let!(:other_auth_headers) { { 'Authorization' => "Bearer #{other_user.auth_token}" } }
   let!(:create_params) { { "post" => { "title" => "title", "content" => "content", "published" => true } } }
+  let!(:update_params) { { "post" => { "title" => "title", "content" => "content", "published" => true } } }
 
   describe "GET /posts/{id}" do
     context "with valid auth" do
@@ -74,6 +75,32 @@ RSpec.describe 'Posts with authentication', type: :request  do
   end
 
   describe "PUT /posts" do
+    context "with valid auth" do
+      context "when updating user's post" do
+        before { put "/posts/#{user_post.id}", params: update_params, headers: auth_headers }
+        context "Payload" do
+          subject { payload }
+          it { is_expected.to include(:id, :title, :content, :published, :author) }
+          it { expect(payload[:id]).to eql(user_post.id)  }
+        end
+        context "Response" do
+          subject { response }
+          it { is_expected.to have_http_status(:ok) }
+        end
+      end
+
+      context "When updating other's user post" do
+        before { put "/posts/#{other_user_post.id}", params: update_params, headers: auth_headers }
+        context "Payload" do
+          subject { payload }
+          it { is_expected.to include(:error) }
+        end
+        context "Response" do
+          subject { response }
+          it { is_expected.to have_http_status(:not_found) }
+        end
+      end
+    end
   end
 
   private
