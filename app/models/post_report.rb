@@ -8,13 +8,13 @@ class PostReport < Struct.new(:word_count, :word_histogram)
 
   private
 
-  def sef.calc_histogram(post)
+  def self.calc_histogram(post)
     (post
       .content
       .split
       .map { |word| word.gsub(/\w/, "") }
       .map(&:downcase)
-      .group_by { |word| word })
-      .transform_values(&:size)
+      .group_by { |word| word }
+      .transform_values(&:size))
   end
 end
